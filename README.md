@@ -20,7 +20,7 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 * Mỗi router duy trì vector khoảng cách riêng, ghi lại chi phí tốt nhất đến mọi đích.
 * Router cập nhật vector khi nhận thông tin từ hàng xóm, dựa theo công thức:
   ```
-  cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest }
+  cost_to_dest = min { cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest }
   ```
 * Khi vector có sự thay đổi, router sẽ gửi lại vector của nó đến các hàng xóm.
 * Định kỳ, ngay cả khi không thay đổi, router vẫn broadcast lại để đảm bảo đồng bộ và giữ liên kết sống.
