@@ -1,5 +1,6 @@
 # Project: Intra-Domain Routing Algorithms - DISTANCE VECTOR
 
+
 ## Giới thiệu
 
 Đây là dự án mô phỏng thuật toán định tuyến sử dụng Distance Vector được xây dựng bằng Python. Mỗi router (self) là một node trong mạng, có các thuộc tính lưu trữ thông tin: `distance` (chi phí tốt nhất để đi tới router khác), `forwarding-table` (bảng lưu tuyến đường tốt nhất tới router khác), `neighbors` (các router có kết nối trực tiếp). Định kỳ hoặc khi có sự thay đổi, router sẽ gửi vector của nó tới hàng xóm. Giao thức này sử dụng thuật toán **Bellman-Ford** để cập nhật bảng định tuyến dựa trên thông tin từ hàng xóm gửi tới.
@@ -12,9 +13,9 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 * Xử lý thêm và xóa liên kết: `handle_new_link`, `handle_remove_link`.
 * Gửi vector định tuyến định kỳ: `handle_time`.
 
-### Distance-Vector Routing
+## Distance-Vector Routing
 
-# Nguyên lý hoạt động:
+### Nguyên lý hoạt động:
 
 * Mỗi router duy trì vector khoảng cách riêng, ghi lại chi phí tốt nhất đến mọi đích.
 * Router cập nhật vector khi nhận thông tin từ hàng xóm, dựa theo công thức:
@@ -23,7 +24,7 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 * Định kỳ, ngay cả khi không thay đổi, router vẫn broadcast lại để đảm bảo đồng bộ và giữ liên kết sống.
 * Các router không phát vectơ khoảng cách đã nhận đến các hàng xóm của mình. Nó chỉ phát vectơ khoảng cách của bản thân đến các hàng xóm của mình.
 
-# Quy trình: 
+### Quy trình: 
 
 * Khởi tạo (`__init__`): Router khởi tạo bảng khoảng cách, khoảng cách đến chính nó bằng 0, các đích khác là vô hạn.
 * Gửi cập nhật (`broadcast`): Router gửi bảng khoảng cách hiện tại đến neighbors theo chu kỳ heartbeat.
@@ -37,7 +38,7 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 
 ## Python code implementation:
 
-# Thuộc tính:
+### Thuộc tính:
 
 * `distance (dict[str, float])`: chi phí tốt nhất để đi tới router khác.
 * `forwarding-table (dict[str, int])`: bảng lưu tuyến đường tốt nhất tới router khác.
@@ -45,7 +46,7 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 * `heartbeat_time`: thời gian cố định định kì sẽ gửi cập nhật tới hàng xóm.
 * `last_time`: thời gian lần cuối gửi cập nhật.
 
-# Phương thức:
+### Phương thức:
 
 * `__init__(addr, heartbeat_time)`: Khởi tạo router với địa chỉ addr và thời gian heartbeat. Khởi tạo các bảng distance, forwarding_table, neighbors.
 * `broadcast()`: Định kỳ hoặc khi có thay đổi, gửi bảng distance vector hiện tại đến tất cả neighbor.
