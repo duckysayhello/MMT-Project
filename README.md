@@ -7,7 +7,7 @@
 
 ## Mô tả chi tiết:
 
-Dự án này là bài tập thực hành cuối kì môn học Mạng máy tính, yêu cầu sinh viên cài đặt lớp `DVrouter` kế thừa từ lớp `Router`, xử lý các chức năng sau:
+Dự án này là bài tập thực hành cuối kì môn học Mạng máy tính tại Trường Đại học Công nghệ - ĐHQGHN, yêu cầu sinh viên cài đặt lớp `DVrouter` kế thừa từ lớp `Router`, xử lý các chức năng sau:
 
 * Tự động cập nhật bảng định tuyến khi có sự thay đổi từ hàng xóm: `handle_packet`.
 * Xử lý thêm và xóa liên kết: `handle_new_link`, `handle_remove_link`.
@@ -19,23 +19,21 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 
 * Mỗi router duy trì vector khoảng cách riêng, ghi lại chi phí tốt nhất đến mọi đích.
 * Router cập nhật vector khi nhận thông tin từ hàng xóm, dựa theo công thức:
-  `cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest } `
+  ```cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest } ```
 * Khi vector có sự thay đổi, router sẽ gửi lại vector của nó đến các hàng xóm.
 * Định kỳ, ngay cả khi không thay đổi, router vẫn broadcast lại để đảm bảo đồng bộ và giữ liên kết sống.
 * Các router không phát vectơ khoảng cách đã nhận đến các hàng xóm của mình. Nó chỉ phát vectơ khoảng cách của bản thân đến các hàng xóm của mình.
 
 ### Quy trình: 
 
-* Khởi tạo (`__init__`): Router khởi tạo bảng khoảng cách, khoảng cách đến chính nó bằng 0, các đích khác là vô hạn.
-* Gửi cập nhật (`broadcast`): Router gửi bảng khoảng cách hiện tại đến neighbors theo chu kỳ heartbeat.
-* Xử lý gói tin nhận được (`handle_packet`):
+* Khởi tạo: Router khởi tạo bảng khoảng cách, khoảng cách đến chính nó bằng 0, các đích khác là vô hạn.
+* Gửi cập nhật: Router gửi bảng khoảng cách hiện tại đến neighbors theo chu kỳ heartbeat.
+* Xử lý gói tin nhận được:
     * Router nhận bảng khoảng cách từ các láng giềng.
     * Dựa trên bảng khoảng cách nhận được, router tính toán lại chi phí đến các đích, cập nhật bảng định tuyến nếu có đường đi tốt hơn.
     * Nếu có thay đổi bảng định tuyến, router gửi thông tin cập nhật đến các láng giềng.
-* Xử lý thay đổi liên kết:
-    * `handle_new_link`: Khi có thêm một liên kết mạng, router cập nhật bảng và thông báo cho neighbors.
-    * `handle_remove_link`: Khi một liên kết mạng bị mất, router cập nhật bảng và thông báo cho neighbors.
-
+* Xử lý thay đổi liên kết: Khi có thêm hoặc mất đi một liên kết mạng, router cập nhật bảng và thông báo cho neighbors.
+      
 ## Python code implementation:
 
 ### Thuộc tính:
