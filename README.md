@@ -1,87 +1,78 @@
-# Project: Intra-Domain Routing Algorithms
+# Project: Intra-Domain Routing Algorithms - DISTANCE VECTOR
 
-## Objective
+## Giới thiệu
 
-* Implement distance-vector
+Đây là dự án mô phỏng thuật toán định tuyến sử dụng Distance Vector được xây dựng bằng Python. Mỗi router (self) là một node trong mạng, có các thuộc tính lưu trữ thông tin: `distance` (chi phí tốt nhất để đi tới router khác), `forwarding-table` (bảng lưu tuyến đường tốt nhất tới router khác), `neighbors` (các router có kết nối trực tiếp). Định kỳ hoặc khi có sự thay đổi, router sẽ gửi vector của nó tới hàng xóm. Giao thức này sử dụng thuật toán **Bellman-Ford** để cập nhật bảng định tuyến dựa trên thông tin từ hàng xóm gửi tới.
 
-## Introduction
+## Mô tả chi tiết:
 
-The Internet is composed of many independent networks (called autonomous systems) that must cooperate in order for packets to reach their destinations. This necessitates different protocols and algorithms for routing packet within autonomous systems, where all routers are operated by the same entity, and between autonomous systems, where business agreements and other policy considerations affect routing decisions.
+Dự án này là bài tập thực hành cuối kì môn học Mạng máy tính, yêu cầu sinh viên cài đặt lớp `DVrouter` kế thừa từ lớp `Router`, xử lý các chức năng sau:
 
-This project focuses on intra-domain routing algorithms used by routers within a single autonomous system (AS). The goal of intra-domain routing is typically to forward packets along the shortest or lowest cost path through the network.
-
-The need to rapidly handle unexpected router or link failures, changing link costs (usually depending on traffic volume), and connections from new routers and clients, motivates the use of distributed algorithms for intra-domain routing. In these distributed algorithms, routers start with only their local state and must communicate with each other to learn lowest cost paths.
-
-Nearly all intra-domain routing algorithms used in real-world networks fall into one of two categories, distance-vector or link-state. In this project, you will implement distributed distance-vector and link-state routing algorithms in Python and test them with a provided network simulator.
-
-## Background
-
-At a high level, they work as follows. Your goal in this project is to turn this high-level description to actual working code. You might find it helpful to review the details of the algorithms in textbooks (see course syllabus for textbook recommendations).
+* Tự động cập nhật bảng định tuyến khi có sự thay đổi từ hàng xóm: `handle_packet`.
+* Xử lý thêm và xóa liên kết: `handle_new_link`, `handle_remove_link`.
+* Gửi vector định tuyến định kỳ: `handle_time`.
 
 ### Distance-Vector Routing
 
-* Each router keeps its own distance vector, which contains its distance to all destinations.
-* When a router receives a distance vector from a neighbor, it updates its own distance vector and the forwarding table.
-* Each router broadcasts its own distance vector to all neighbors when the distance vector changes. The broadcast is also done periodically if no detected change has occurred.
-* Each router **does not** broadcast the received distance vector to its neighbors. It **only** broadcasts its own distance vector to its neighbors.
+# Nguyên lý hoạt động:
 
-You will notice that the `DVrouter` classes contain several unfinished methods marked with `TODO`. They are:
+* Mỗi router duy trì vector khoảng cách riêng, ghi lại chi phí tốt nhất đến mọi đích.
+* Router cập nhật vector khi nhận thông tin từ hàng xóm, dựa theo công thức:
+  `cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest } `
+* Khi vector có sự thay đổi, router sẽ gửi lại vector của nó đến các hàng xóm.
+* Định kỳ, ngay cả khi không thay đổi, router vẫn broadcast lại để đảm bảo đồng bộ và giữ liên kết sống.
+* Các router không phát vectơ khoảng cách đã nhận đến các hàng xóm của mình. Nó chỉ phát vectơ khoảng cách của bản thân đến các hàng xóm của mình.
 
-- `__init__`
-- `handle_packet`
-- `handle_new_link`
-- `handle_remove_link`
-- `handle_time`
-- `__repr__` (optional, for your own debugging)
+# Quy trình: 
 
+* Khởi tạo (`__init__`): Router khởi tạo bảng khoảng cách, khoảng cách đến chính nó bằng 0, các đích khác là vô hạn.
+* Gửi cập nhật (`broadcast`): Router gửi bảng khoảng cách hiện tại đến neighbors theo chu kỳ heartbeat.
+* Xử lý gói tin nhận được (`handle_packet`):
+    * Router nhận bảng khoảng cách từ các láng giềng.
+    * Dựa trên bảng khoảng cách nhận được, router tính toán lại chi phí đến các đích, cập nhật bảng định tuyến nếu có đường đi tốt hơn.
+    * Nếu có thay đổi bảng định tuyến, router gửi thông tin cập nhật đến các láng giềng.
+* Xử lý thay đổi liên kết:
+    * `handle_new_link`: Khi có thêm một liên kết mạng, router cập nhật bảng và thông báo cho neighbors.
+    * `handle_remove_link`: Khi một liên kết mạng bị mất, router cập nhật bảng và thông báo cho neighbors.
+
+## Python code implementation:
+
+# Thuộc tính:
+
+* `distance (dict[str, float])`: chi phí tốt nhất để đi tới router khác.
+* `forwarding-table (dict[str, int])`: bảng lưu tuyến đường tốt nhất tới router khác.
+* `neighbors (dict[int, tuple[str, float]])`: các router có kết nối trực tiếp với router hiện tại.
+* `heartbeat_time`: thời gian cố định định kì sẽ gửi cập nhật tới hàng xóm.
+* `last_time`: thời gian lần cuối gửi cập nhật.
+
+# Phương thức:
+
+* `__init__(addr, heartbeat_time)`: Khởi tạo router với địa chỉ addr và thời gian heartbeat. Khởi tạo các bảng distance, forwarding_table, neighbors.
+* `broadcast()`: Định kỳ hoặc khi có thay đổi, gửi bảng distance vector hiện tại đến tất cả neighbor.
+* `handle_packet(port, packet)`: Xử lý gói tin đến từ cổng port.
+    * Nếu là gói dữ liệu thông thường (traceroute), chuyển tiếp dựa trên bảng định tuyến.
+    * Nếu là gói routing (bảng khoảng cách từ neighbor), cập nhật lại bảng khoảng cách và bảng định tuyến nếu phát hiện đường đi tốt hơn, sau đó phát lại cập nhật.
+* `handle_new_link(port, endpoint, cost)`: Xử lý khi có liên kết mới. Cập nhật thông tin neighbor, bảng khoảng cách, bảng định tuyến nếu cần thiết và phát lại cập nhật .
+* `handle_remove_link(port)`: Xử lý khi một liên kết bị ngắt. Xóa thông tin liên quan đến liên kết, cập nhật lại bảng, phát lại cập nhật nếu cần.
+* `handle_time(time_ms)`: Xử lý thời gian hiện tại. Nếu đã đến thời điểm gửi heartbeat, gọi broadcast() để gửi bảng khoảng cách định kỳ.
+* `__repr__()`: Hàm hiển thị đối tượng cho mục đích debug, giúp quan sát trạng thái router dễ dàng.
+  
 ## Running and Testing
 
-You should test your `DVrouter` using the provided network simulator. There are multiple JSON files defining different network architectures and link failures and additions. The JSON files without `_events` in their file name do not have link failures or additions and are good for initial testing.
+Kiểm tra hoạt động của `DVrouter` bằng mô phỏng mạng được cung cấp sẵn trong các file JSON.
+Chạy lệnh sau trong terminal: 
 
-To run the simulation with a graphical interface:
-
+Với mô phỏng trực quan: 
 ```
-usage: visualize_network.py [-h] net_json_path [{DV,LS}]
-
-Visualize a network simulation.
-
-positional arguments:
-  net_json_path  Path to the network simulation configuration file (JSON).
-  {DV,LS}        DV for DVrouter and LS for LSrouter. If not provided, Router is used.
-
-options:
-  -h, --help     show this help message and exit
+python visualize_network.py <net_json_path> DV
 ```
 
-The second argument can be `DV` or `LS` which indicates whether to run `DVrouter` or `LSrouter`, respectively.
-
-To run the simulation without the graphical interface:
-
+Với mô phỏng trong command line:
 ```
-usage: network.py [-h] net_json_path [{DV,LS}]
-
-Run a network simulation.
-
-positional arguments:
-  net_json_path  Path to the network simulation configuration file (JSON).
-  {DV,LS}        DV for DVrouter and LS for LSrouter. If not provided, Router is used.
-
-options:
-  -h, --help     show this help message and exit
+python network.py <net_json_path> DV
 ```
 
-The routes to and from each client at the end of the simulation will print, along with whether they match the reference lowest-cost routes. If the routes match, your implementation has passed for that simulation. If they do not, continue debugging (using print statements and the `__repr__` method in your router classes).
-
-The bash script `test_scripts/test_dv_ls.sh` will run all the supplied networks with your router implementations. You can also pass `LS` or `DV` as an argument to `test_scripts/test_dv_ls.sh` (e.g. `./test_scripts/test_dv_ls.sh DV`) to test only one of the two implementations.
-
-Don't worry if you get the following error. It sometimes occurs when the threads are stopped at the end of the simulation without warning:
-
-```
-Unhandled exception in thread started by
-sys.excepthook is missing
-lost sys.stderr
-```
-
-## Acknowledgements
-
-This programming project is based on Princeton University's Project 2 from COS 461: Computer Networks, and Johns Hopkins University's Assignment 3 from EN.601.414/614: Computer Networks.
+## Tác giả
+Dự án gồm sự đóng góp của hai sinh viên:
+* Nguyễn Phương Linh - 23021609
+* Đào Minh Đức - 23020598
