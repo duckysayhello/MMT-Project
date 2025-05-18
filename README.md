@@ -3,7 +3,7 @@
 
 ## Giới thiệu
 
-Đây là dự án mô phỏng thuật toán định tuyến sử dụng Distance Vector được xây dựng bằng Python. Mỗi router (self) là một node trong mạng, có các thuộc tính lưu trữ thông tin: `distance` (chi phí tốt nhất để đi tới router khác), `forwarding-table` (bảng lưu tuyến đường tốt nhất tới router khác), `neighbors` (các router có kết nối trực tiếp). Định kỳ hoặc khi có sự thay đổi, router sẽ gửi vector của nó tới hàng xóm. Giao thức này sử dụng thuật toán **Bellman-Ford** để cập nhật bảng định tuyến dựa trên thông tin từ hàng xóm gửi tới.
+Đây là dự án mô phỏng thuật toán định tuyến sử dụng Distance Vector được xây dựng bằng Python. Mỗi router (self) là một node trong mạng, có các thuộc tính lưu trữ thông tin: `distance` (chi phí tốt nhất để đi tới router khác), `forwarding-table` (bảng lưu tuyến đường tốt nhất tới router khác), `neighbors` (các router có kết nối trực tiếp). Định kỳ hoặc khi có sự thay đổi, router sẽ gửi vector của nó tới hàng xóm. Giao thức này sử dụng thuật toán ***Bellman-Ford*** để cập nhật bảng định tuyến dựa trên thông tin từ hàng xóm gửi tới.
 
 ## Mô tả chi tiết:
 
@@ -19,7 +19,9 @@ Dự án này là bài tập thực hành cuối kì môn học Mạng máy tín
 
 * Mỗi router duy trì vector khoảng cách riêng, ghi lại chi phí tốt nhất đến mọi đích.
 * Router cập nhật vector khi nhận thông tin từ hàng xóm, dựa theo công thức:
-  ```cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest } ```
+  ```
+  cost_to_dest = min{ cost_to_dest, cost_to_neighbor + neighbor.cost_to_dest }
+  ```
 * Khi vector có sự thay đổi, router sẽ gửi lại vector của nó đến các hàng xóm.
 * Định kỳ, ngay cả khi không thay đổi, router vẫn broadcast lại để đảm bảo đồng bộ và giữ liên kết sống.
 * Các router không phát vectơ khoảng cách đã nhận đến các hàng xóm của mình. Nó chỉ phát vectơ khoảng cách của bản thân đến các hàng xóm của mình.
